@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<section class="articles">
+    <article>
+        <h1>Bienvenue sur ArchiCalendar</h1>
+
+        <p> <br>J'espère que ce site aidera votre organisation ! <br>
+        Ci-dessous se trouvent les instructions du site, et les informations concernant le jour actuel, <br>
+        En espérant que ça vous aide à vour retrouver plus facilement dans le calendrier.<br><br></p>
+        
+        <h2>Instructions du site</h2>
+
+        <div class="content">
+        
+            <p> Pour ajouter une semaine cliquez sur "Add a week" <br>
+                Pour naviguer à travers toutes les semaines cliquez sur "Voir plus" <br>
+                Si vous voyez la semaine qui vous intéresse, cliquez simplement dessus <br><br></p>
+            
+        </div>
+
+        <h2>Date</h2>
+
+        <p>Nous sommes actuellement le <span id="date"></span> et il est <span id="datetime"></span></p>
+
+            <script>
+                var dt = new Date();
+                document.getElementById("date").innerHTML = dt.toLocaleDateString();
+                document.getElementById("datetime").innerHTML = dt.toLocaleTimeString();
+            </script>
+
+    </article>
+
+</section>
+
+{% endblock %}

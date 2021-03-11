@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% form_theme formSemaine 'bootstrap_4_layout.html.twig' %}
+
+{% block body %}
+
+    <h1>{% if editMode %}
+            Modification d'une semaine 
+        {% else %}
+            Création d'une semaine 
+        {% endif %}</h1>
+
+    {{  form_start(formSemaine)  }}
+
+    {{  form_row(formSemaine.title, {'attr':{'placeholder':"Titre de la semaine"}})  }}
+    {{  form_row(formSemaine.content, {'attr':{'placeholder':"Description de la semaine"}})  }}
+    {{  form_row(formSemaine.image, {'attr':{'placeholder':"URL d'une image"}})  }}
+
+    <button type="submit" class="btn btn-success">
+        {% if editMode %}
+            Enregistrer les modifications
+        {% else %}
+            Ajouter l'article
+        {% endif %}
+    </button>
+
+    {{  form_end(formSemaine)  }}
+
+{% endblock %}

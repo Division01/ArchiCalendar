@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <article>
+        <h2>{{ element.title }}</h2>
+        <div class="metadata">Créé le {{ element.createdAt | 
+        date('d/m/Y') }} à  {{ element.createdAt | date('H:i') }}</div>
+        <div class="content">
+            {{ element.content | raw }}
+        </div>
+    </article>
+
+{% endblock %}
