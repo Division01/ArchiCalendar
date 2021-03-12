@@ -21,23 +21,30 @@ use App\Form\TacheType;
 
 class CalendarController extends AbstractController
 {
+
+
     /**
      * @Route("/calendar", name="calendar")
      */
     public function index(ArticleSemaineRepository $repo)
     {
-        $articles = $repo->findAll();
+        $week = $repo->findAll();
+        // $week = $week[-2:-1];
+    
 
         return $this->render('calendar/index.html.twig', [
             'controller_name' => 'CalendarController',
-            'articles' => $articles
+            'articles' => $week
         ]);
     }
 
     /**
      * @Route("/", name="home")
      */
-    public function home(){
+    public function home(ArticleSemaineRepository $repo){
+        
+        $week = $repo->findAll();
+        
         return $this->render('calendar/home.html.twig', [
             'title' => "Bienvenue sur mon calendrier !"
         ]);
@@ -47,8 +54,9 @@ class CalendarController extends AbstractController
      * @Route("/calendar/new", name="calendar_create")
      * @Route("/calendar/{id}/edit", name="calendar_edit")
      */
-     public function form(ArticleSemaine $newSemaine = null, Request $request, EntityManagerInterface $manager){
+     public function form(ArticleSemaine $newSemaine = null, ArticleSemaineRepository $repo, Request $request, EntityManagerInterface $manager){
 
+        $week = $repo->findAll();
 
         if(!$newSemaine){
             $newSemaine = new ArticleSemaine();
@@ -81,7 +89,9 @@ class CalendarController extends AbstractController
      * @Route("/calendar/task/new", name="task_create")
      * @Route("/calendar/task/{id}/edit", name="task_edit")
      */
-    public function formTask($id = null, TacheRepository $repo, Request $request, EntityManagerInterface $manager){
+    public function formTask($id = null, TacheRepository $repo, ArticleSemaineRepository $reposit ,Request $request, EntityManagerInterface $manager){
+
+        $week = $reposit->findAll();
 
         if(!$id){
             $newTask = new Tache();
@@ -112,7 +122,11 @@ class CalendarController extends AbstractController
     /**
      * @Route("/calendar/{id}", name="calendar_show")
      */
-    public function show(ArticleSemaine $article){
+    public function show(ArticleSemaine $article, ArticleSemaineRepository $repo){
+
+        $week = $repo->findAll();
+
+
         return $this->render('calendar/show.html.twig', [
             'element' => $article
         ]);
@@ -120,26 +134,21 @@ class CalendarController extends AbstractController
     }
 
 
-
-
-
-
-
-
-
     /**
-     * @Route("/delete/{id}", name="delete_week")
+     * @Route("/delete/{id}", name="delete_task")
      */
-    public function DeleteWeek($id, TaskListRepository $repo, EntityManagerInterface $manager)
+    public function DeleteTask($id, TacheRepository $repo, EntityManagerInterface $manager)
     {
         $taskList = $repo->find($id);
-        $listTitle = $taskList->getTitle();
+        $listID = $taskList->getSemaine();
         $manager->remove($taskList);
         $manager->flush();
         
-        $this->addFlash("notice", sprintf("Week %s has been deleted", $listTitle));
+        $this->addFlash("notice", sprintf("Task has been deleted"));
 
-        return $this->redirectToRoute("lists");
+        return $this->redirectToRoute("calendar_show",[
+            'id' => $listID->getId()
+        ]);
     }
 
 }

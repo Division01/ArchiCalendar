@@ -22,11 +22,19 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Week 1</a>
+                        <a class="nav-link" href="{{ path('task_create', {'id': NULL})}}">Create Task</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('calendar_show',  {'id':11}) }}">Week 1</a>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Week 2</a>
+                        <a class="nav-link" href="{{ path('calendar_show', {'id': 12}) }}">Week 2</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('calendar_show', {'id': 13}) }}">Week 3</a>
                     </li>
 
                     <li class="nav-item active">
