@@ -3,8 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\ArticleSemaineRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Form\FormTypeInterface;
 
 /**
  * @ORM\Entity(repositoryClass=ArticleSemaineRepository::class)
@@ -40,6 +43,16 @@ class ArticleSemaine
      * @ORM\Column(type="datetime")
      */
     private $createdAt;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Tache::class, mappedBy="Semaine")
+     */
+    private $taches;
+
+    public function __construct()
+    {
+        $this->taches = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -90,6 +103,36 @@ class ArticleSemaine
     public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Tache[]
+     */
+    public function getTaches(): Collection
+    {
+        return $this->taches;
+    }
+
+    public function addTach(Tache $tach): self
+    {
+        if (!$this->taches->contains($tach)) {
+            $this->taches[] = $tach;
+            $tach->setSemaine($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTach(Tache $tach): self
+    {
+        if ($this->taches->removeElement($tach)) {
+            // set the owning side to null (unless already changed)
+            if ($tach->getSemaine() === $this) {
+                $tach->setSemaine(null);
+            }
+        }
 
         return $this;
     }

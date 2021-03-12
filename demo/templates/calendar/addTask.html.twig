@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% form_theme formTache 'bootstrap_4_layout.html.twig' %}
+
+{% block body %}
+
+    <h1>{% if editMode %}
+            Modification d'une tache 
+        {% else %}
+            Ajout d'une tache
+        {% endif %}</h1>
+
+    {{  form_start(formTache)  }}
+
+    {{  form_row(formTache.description, {'attr':{'placeholder':"Description de la tâche"}})  }}
+    {{  form_row(formTache.Semaine) }}
+    {{  form_row(formTache.DueDate) }}
+    {{  form_row(formTache.Done) }}
+
+    <button type="submit" class="btn btn-success">
+        {% if editMode %}
+            Enregistrer les modifications
+        {% else %}
+            Ajouter l'article
+        {% endif %}
+    </button>
+
+    {{  form_end(formTache)  }}
+
+{% endblock %}

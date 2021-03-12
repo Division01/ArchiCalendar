@@ -4,11 +4,34 @@
 
     <article>
         <h2>{{ element.title }}</h2>
-        <div class="metadata">Créé le {{ element.createdAt | 
-        date('d/m/Y') }} à  {{ element.createdAt | date('H:i') }}</div>
+        
+        <div class="metadata">Créé le {{ element.createdAt | date('d/m/Y') }} à  {{ element.createdAt | date('H:i') }}</div>
+        
         <div class="content">
             {{ element.content | raw }}
         </div>
-    </article>
 
+        <section id="taches">
+            {% for uneTache in element.Taches %}
+                <div class="tache">
+                    <div class="row">
+                        <div class="col-3">
+                            {{uneTache.Done}} (<small>Pour le {{uneTache.DueDate | date
+                            ('d/m/Y')}}</small>)
+                        </div>
+                        <div class="col">
+                            {{uneTache.description | raw}}
+                        </div>
+                        <button class="nav-item">
+                        <a class="nav-link" href="{{path('task_edit', {'id': uneTache.id})}}">Modifier la tâche</a>
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        
+        <button class="nav-item">
+            <a class="nav-link" href="{{ path('task_create', {'id': NULL})}}">Create Task</a>
+        </button>
+
+    </article>
 {% endblock %}

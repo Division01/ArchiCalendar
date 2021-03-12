@@ -10,10 +10,14 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\FormTypeInterface;
 
 use App\Entity\ArticleSemaine;
+use App\Entity\Tache;
 use App\Repository\ArticleSemaineRepository;
+use App\Repository\TacheRepository;
 use App\Form\SemaineType;
+use App\Form\TacheType;
 
 class CalendarController extends AbstractController
 {
@@ -74,11 +78,68 @@ class CalendarController extends AbstractController
     }
 
     /**
+     * @Route("/calendar/task/new", name="task_create")
+     * @Route("/calendar/task/{id}/edit", name="task_edit")
+     */
+    public function formTask($id = null, TacheRepository $repo, Request $request, EntityManagerInterface $manager){
+
+        if(!$id){
+            $newTask = new Tache();
+        }
+        else{
+            $newTask = $repo->find($id);
+        }
+        
+        // Utilise le formulaire qui se situe dans le fichier SemaineType.php
+        $form = $this->createForm(TacheType::class, $newTask);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()){            
+            $manager->persist($newTask);
+            $manager->flush();
+
+            return $this->redirectToRoute('calendar');
+        }
+
+        return $this->render('calendar/addTask.html.twig',[
+            'formTache' => $form->createView(),
+            'editMode' => $newTask->getId() !== null
+        ]);
+    }
+
+
+    /**
      * @Route("/calendar/{id}", name="calendar_show")
      */
     public function show(ArticleSemaine $article){
         return $this->render('calendar/show.html.twig', [
             'element' => $article
         ]);
+        
     }
+
+
+
+
+
+
+
+
+
+    /**
+     * @Route("/delete/{id}", name="delete_week")
+     */
+    public function DeleteWeek($id, TaskListRepository $repo, EntityManagerInterface $manager)
+    {
+        $taskList = $repo->find($id);
+        $listTitle = $taskList->getTitle();
+        $manager->remove($taskList);
+        $manager->flush();
+        
+        $this->addFlash("notice", sprintf("Week %s has been deleted", $listTitle));
+
+        return $this->redirectToRoute("lists");
+    }
+
 }
