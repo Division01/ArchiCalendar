@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\TacheRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Form\FormTypeInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=TacheRepository::class)
@@ -15,21 +16,25 @@ class Tache
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("semaine:read")
      */
     private $id;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups("semaine:read")
      */
     private $description;
 
     /**
      * @ORM\Column(type="date")
+     * @Groups("semaine:read")
      */
     private $DueDate;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups("semaine:read")
      */
     private $Done;
 

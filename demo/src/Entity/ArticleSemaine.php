@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Form\FormTypeInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ORM\Entity(repositoryClass=ArticleSemaineRepository::class)
@@ -18,34 +20,44 @@ class ArticleSemaine
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("semaine:read")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\Length(min=10, max=255, minMessage="Votre titre doit avoir minimum 10 charactères")
+     * @Groups("semaine:read")
+     * @Assert\NotBlank(message="Le titre est obligatoire")
+     * @Assert\Length(min=3)
      */
     private $title;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      * @Assert\Length(min=10, minMessage="Votre contenu doit avoir 0 ou au minimum 10 charactères")
+     * @Groups("semaine:read")
+     * @Assert\NotBlank(message="Le contenu est obligatoire")
+     * @Assert\Length(min=3)
      */
     private $content;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\Url()
+     * @Groups("semaine:read")
      */
     private $image;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups("semaine:read")
      */
     private $createdAt;
 
     /**
      * @ORM\OneToMany(targetEntity=Tache::class, mappedBy="Semaine")
+     * @Groups("semaine:read")
      */
     private $taches;
 
