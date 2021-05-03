@@ -20,7 +20,19 @@ class ApiSemaineController extends AbstractController
      */
     public function index(ArticleSemaineRepository $articleSemaineRepository)
     {
-        return $this->json($articleSemaineRepository->findAll(), 200, [], ['groups'=>'semaine:read']);
+        $response = new JsonResponse();
+
+        $response->headers->set('Content-Type', 'application/json');
+
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+
+        $response->headers->set("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
+
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With', true);
+
+        $response->setContent($articleSemaineRepository->findAll(), 200, [], ['groups'=>'semaine:read']);
+
+        return $response
     }
 
     /**
