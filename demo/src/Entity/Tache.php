@@ -6,6 +6,7 @@ use App\Repository\TacheRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=TacheRepository::class)
@@ -23,6 +24,8 @@ class Tache
     /**
      * @ORM\Column(type="text")
      * @Groups("semaine:read")
+     * @Assert\NotBlank(message="La description est obligatoire")
+     * @Assert\Length(min=3)
      */
     private $description;
 
@@ -39,7 +42,8 @@ class Tache
     private $Done;
 
     /**
-     * @ORM\ManyToOne(targetEntity=ArticleSemaine::class, inversedBy="taches")
+     * @ORM\ManyToOne(targetEntity=ArticleSemaine::class, inversedBy="taches", cascade={"persist"})
+     * @Assert\NotBlank(message="ID de la semaine est obligatoire")
      */
     private $Semaine;
 
