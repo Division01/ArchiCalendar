@@ -21,7 +21,7 @@ class ApiSemaineController extends AbstractController
 
 
 //////////
-// GET ///   
+// GET ///   Fonctionne
 //////////
 
     /**
@@ -46,7 +46,7 @@ class ApiSemaineController extends AbstractController
 
 
 //////////
-// GET ///   
+// GET ///   Fonctionne
 //////////
 
     /**
@@ -71,12 +71,12 @@ class ApiSemaineController extends AbstractController
 
 
 //////////
-// POST //   
+// POST //   Fonctionne
 //////////
 
 
     /**
-     * @Route("/api/semaine", name="api_semaine_create", methods={"POST"})
+     * @Route("/api/semaines", name="api_semaine_create", methods={"POST"})
      */
     public function create(Request $request, ValidatorInterface $validator, EntityManagerInterface $em, SerializerInterface $serializer ){
 
@@ -96,7 +96,7 @@ class ApiSemaineController extends AbstractController
                 $em->flush();
 
                 return $this->json([
-                    'message' => 'Bien créé']
+                    'message' => 'Semaine bien créé']
                 );
 
 
@@ -110,21 +110,26 @@ class ApiSemaineController extends AbstractController
     }
 
 
-
 //////////
-// PUT ///   
+// PUT ///   Fonctionne pas 
 //////////
 
     /**
-     * @Route("/api/semaine", name="api_semaine_update", methods={"PUT"})
+     * @Route("/api/semaines/{id}", name="api_semaine_update", methods={"PUT"})
      */
-    public function update(Request $request, ValidatorInterface $validator, EntityManagerInterface $em, SerializerInterface $serializer ){
+    public function update($id = null, Request $request, ValidatorInterface $validator, EntityManagerInterface $em, SerializerInterface $serializer, ArticleSemaineRepository $asr ){
 
         $jsonRecu = $request->getContent();
 
         try{
             $semaine = $serializer->deserialize($jsonRecu, ArticleSemaine::class, 'json');
-            $semaine->setCreatedAt(new \DateTime());
+
+            $semaine_a_modif = $asr->find($id);
+
+            $semaine_a_modif->setCreatedAt(new \DateTime());
+            $semaine_a_modif->setContent($semaine->getContent());
+            $semaine_a_modif->setImage($semaine->getImage());
+            $semaine_a_modif->setTitle($semaine->getTitle());
 
             $errors = $validator->validate($semaine);
 
@@ -134,6 +139,10 @@ class ApiSemaineController extends AbstractController
 
             $em->persist($semaine);
             $em->flush();
+
+            return $this->json([
+                'message' => 'Semaine bien modifiée']
+            );
 
         } catch(NotEncodableValueException $e){
             return $this->json([
@@ -146,47 +155,52 @@ class ApiSemaineController extends AbstractController
 
 
 ////////////
-// DELETE //   
+// DELETE //   Fonctionnel
 ////////////
 
     /**
-     * @Route("/api/semaines/delete/{id}", name="api_delete_tache", methods={"DELETE"})
+     * @Route("/api/semaines/{id}", name="api_delete_semaine", methods={"DELETE"})
      */
     public function supprimage_semaine($id = null, ArticleSemaineRepository $asr, EntityManagerInterface $manager)
     {
         $manager->remove($asr->find($id));
         $manager->flush();
+
+        return $this->json([
+            'message' => 'Semaine bien supprimée']
+        );
     }
 
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////// TACHES ///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////               //////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////    TACHES     //////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////               //////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
 
 
 
 //////////
-// POST //   
+// POST //   PAS DU TOUT FONCTIONNEL
 //////////
 
 
     /**
      * @Route("/api/tache", name="api_tache_create", methods={"POST"})
      */
-    public function creage_tache(Request $request, ValidatorInterface $validator, EntityManagerInterface $em, SerializerInterface $serializer ){
+    public function creage_tache(Request $request, ValidatorInterface $validator, EntityManagerInterface $em, SerializerInterface $serializer, ArticleSemaineRepository $asr ){
 
         $jsonRecu = $request->getContent();
 
         try{
             $tache = $serializer->deserialize($jsonRecu, Tache::class, 'json');
-
             $errors = $validator->validate($tache);
-            
+            $semaine = $asr->find($tache->getSemaine());
+            $semaine->addTach($tache);
+
             if(count($errors)>0){
                 return $this->json($errors,400);
             }
@@ -209,7 +223,7 @@ class ApiSemaineController extends AbstractController
     }
 
 //////////
-// GET ///   
+// GET ///   Fonctionne
 //////////
 
     /**
@@ -232,11 +246,11 @@ class ApiSemaineController extends AbstractController
     }
 
 //////////
-// PUT ///   pas fé
+// PUT ///   pas fait car POST fonctionne pas
 //////////
 
     /**
-     * @Route("/api/tache/edit/{id}", name="api_tache_update", methods={"PUT"})
+     * @Route("/api/tache/{id}", name="api_tache_update", methods={"PUT"})
      */
     public function update_task(Request $request, ValidatorInterface $validator, EntityManagerInterface $em, SerializerInterface $serializer ){
 
@@ -255,6 +269,10 @@ class ApiSemaineController extends AbstractController
             $em->persist($semaine);
             $em->flush();
 
+            return $this->json([
+                'message' => 'Tache bien modifiée']
+            );
+
         } catch(NotEncodableValueException $e){
             return $this->json([
                 'status' => 400,
@@ -267,16 +285,20 @@ class ApiSemaineController extends AbstractController
 
 
 ////////////
-// DELETE //   
+// DELETE //   Fonctionne
 ////////////
 
     /**
-     * @Route("/api/tache/delete/{id}", name="api_delete_tache", methods={"DELETE"})
+     * @Route("/api/tache/{id}", name="api_delete_tache", methods={"DELETE"})
      */
     public function supprimage_tache($id = null, TacheRepository $tr, EntityManagerInterface $manager)
     {
         $manager->remove($tr->find($id));
         $manager->flush();
+
+        return $this->json([
+            'message' => 'Tache bien supprimée']
+        );
     }
 
 
