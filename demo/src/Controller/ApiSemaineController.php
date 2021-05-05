@@ -36,7 +36,7 @@ class ApiSemaineController extends AbstractController
             [
                 'Content-Type'=> 'application/json',
                 'Access-Control-Allow-Origin'=> 'http://localhost:4200',
-                "Access-Control-Allow-Methods"=>"GET, PUT, POST, DELETE, OPTIONS",
+                "Access-Control-Allow-Methods"=> 'GET, PUT, POST, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers'=> 'Content-Type, Accept, Authorization, X-Requested-With'
             ], 
             ['groups'=>'semaine:read'] 
@@ -111,7 +111,7 @@ class ApiSemaineController extends AbstractController
 
 
 //////////
-// PUT ///   Fonctionne pas 
+// PUT ///   Fonctionne
 //////////
 
     /**
@@ -131,13 +131,14 @@ class ApiSemaineController extends AbstractController
             $semaine_a_modif->setImage($semaine->getImage());
             $semaine_a_modif->setTitle($semaine->getTitle());
 
-            $errors = $validator->validate($semaine);
+
+            $errors = $validator->validate($semaine_a_modif);
 
             if(count($errors)>0){
                 return $this->json($errors,400);
             }
 
-            $em->persist($semaine);
+            $em->persist($semaine_a_modif);
             $em->flush();
 
             return $this->json([
@@ -184,21 +185,26 @@ class ApiSemaineController extends AbstractController
 
 
 //////////
-// POST //   PAS DU TOUT FONCTIONNEL
+// POST //   FONCTIONNEL
 //////////
 
 
     /**
-     * @Route("/api/tache", name="api_tache_create", methods={"POST"})
+     * @Route("/api/tache/{id_semaine}", name="api_tache_create", methods={"POST"})
      */
-    public function creage_tache(Request $request, ValidatorInterface $validator, EntityManagerInterface $em, SerializerInterface $serializer, ArticleSemaineRepository $asr ){
+    public function creage_tache($id_semaine = null, Request $request, ValidatorInterface $validator, EntityManagerInterface $em, SerializerInterface $serializer, ArticleSemaineRepository $asr ){
 
         $jsonRecu = $request->getContent();
 
         try{
             $tache = $serializer->deserialize($jsonRecu, Tache::class, 'json');
+
+            if($tache->getDone() == null){
+                $tache->setDone(false);
+            }
+
             $errors = $validator->validate($tache);
-            $semaine = $asr->find($tache->getSemaine());
+            $semaine = $asr->find($id_semaine);
             $semaine->addTach($tache);
 
             if(count($errors)>0){
@@ -227,13 +233,13 @@ class ApiSemaineController extends AbstractController
 //////////
 
     /**
-     * @Route("/api/tache/{id}", name="api_une_tache", methods={"GET"})
+     * @Route("/api/tache/{id_tache}", name="api_une_tache", methods={"GET"})
      */
-    public function une_tache($id = null, TacheRepository $tr)
+    public function une_tache($id_tache = null, TacheRepository $tr)
     {
         $response = new JsonResponse();
         return $this->json(
-            $tr->find($id),
+            $tr->find($id_tache),
             200,
             [
                 'Content-Type'=> 'application/json',
@@ -246,27 +252,43 @@ class ApiSemaineController extends AbstractController
     }
 
 //////////
-// PUT ///   pas fait car POST fonctionne pas
+// PUT ///   Fonctionne
 //////////
 
     /**
-     * @Route("/api/tache/{id}", name="api_tache_update", methods={"PUT"})
+     * @Route("/api/tache/{id_tache}", name="api_tache_update", methods={"PUT"})
      */
-    public function update_task(Request $request, ValidatorInterface $validator, EntityManagerInterface $em, SerializerInterface $serializer ){
+    public function update_task($id_tache = null, Request $request, ValidatorInterface $validator, EntityManagerInterface $em, SerializerInterface $serializer, TacheRepository $tr ){
 
         $jsonRecu = $request->getContent();
 
         try{
-            $semaine = $serializer->deserialize($jsonRecu, ArticleSemaine::class, 'json');
-            $semaine->setCreatedAt(new \DateTime());
+            $tache_recue = $serializer->deserialize($jsonRecu, Tache::class, 'json');
 
-            $errors = $validator->validate($semaine);
+
+            $tache_a_modif = $tr->find($id_tache);
+
+
+            if($tache_recue->getDone() ==! null){
+                $tache_a_modif->setDone($tache_recue->getDone());
+            }
+            if($tache_recue->getDescription() ==! null){
+                $tache_a_modif->setDescription($tache_recue->getDescription());
+            }
+            if($tache_recue->getDueDate() ==! null){
+                $tache_a_modif->setDueDate($tache_recue->getDueDate());
+            }
+            if($tache_recue->getSemaine() ==! null){
+                $tache_a_modif->setSemaine($tache_recue->getSemaine());
+            }
+
+            $errors = $validator->validate($tache_a_modif);
 
             if(count($errors)>0){
                 return $this->json($errors,400);
             }
 
-            $em->persist($semaine);
+            $em->persist($tache_a_modif);
             $em->flush();
 
             return $this->json([

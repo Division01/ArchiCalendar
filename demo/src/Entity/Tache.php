@@ -43,7 +43,6 @@ class Tache
 
     /**
      * @ORM\ManyToOne(targetEntity=ArticleSemaine::class, inversedBy="taches", cascade={"persist"})
-     * @Assert\NotBlank(message="ID de la semaine est obligatoire")
      */
     private $Semaine;
 
