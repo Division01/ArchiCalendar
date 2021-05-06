@@ -7,6 +7,7 @@ use App\Entity\Tache;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ArticleSemaineRepository;
 use App\Repository\TacheRepository;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -29,10 +30,9 @@ class ApiSemaineController extends AbstractController
      */
     public function index(ArticleSemaineRepository $articleSemaineRepository)
     {
-        $response = new JsonResponse();
-        
+        $temp = $articleSemaineRepository->findAll();
         return $this->json(
-            $articleSemaineRepository->findAll(), 
+            $temp,
             200,
             [
                 'Content-Type'=> 'application/json',
@@ -55,7 +55,6 @@ class ApiSemaineController extends AbstractController
      */
     public function une_semaine($id = null, ArticleSemaineRepository $articleSemaineRepository)
     {
-        $response = new JsonResponse();
         return $this->json(
             $articleSemaineRepository->find($id),
             200,
@@ -79,7 +78,7 @@ class ApiSemaineController extends AbstractController
     /**
      * @Route("/api/semaines", name="api_semaine_create", methods={"POST"})
      */
-    public function create(Request $request, ValidatorInterface $validator, EntityManagerInterface $em, SerializerInterface $serializer ){
+    public function create(Request $request, ValidatorInterface $validator, EntityManagerInterface $em, SerializerInterface $serializer, LoggerInterface $l ){
 
             $jsonRecu = $request->getContent();
 
@@ -88,20 +87,26 @@ class ApiSemaineController extends AbstractController
                 $semaine->setCreatedAt(new \DateTime());
 
                 $errors = $validator->validate($semaine);
+                $l->alert("there");
 
                 if(count($errors)>0){
                     return $this->json($errors,400);
                 }
+                $l->alert("here");
 
                 $em->persist($semaine);
                 $em->flush();
 
-                return $this->json([
-                    'message' => 'Semaine bien créé']
+                $l->alert("o");
+                return $this->json(
+                    null,
+                    201
                 );
 
 
             } catch(NotEncodableValueException $e){
+                $l->alert("shit");
+                
                 return $this->json([
                     'status' => 400,
                     'message' => $e->getMessage()], 400
