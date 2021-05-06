@@ -25,11 +25,12 @@ class ApiSemaineController extends AbstractController
 //////////
 
     /**
-     * @Route("/api/semaines/", name="api_semaine_index", methods={"GET"})
+     * @Route("/api/semaines", name="api_semaine_index", methods={"GET"})
      */
     public function index(ArticleSemaineRepository $articleSemaineRepository)
     {
         $response = new JsonResponse();
+        
         return $this->json(
             $articleSemaineRepository->findAll(), 
             200,
