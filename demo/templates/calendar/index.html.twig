@@ -17,6 +17,8 @@
                 {{ element.content | raw }} <br/>
                 <a href="{{ path('calendar_show',{'id':element.id}) }}" class="btn 
                 btn-primary"> Lire la suite </a> 
+                <a href='{{ path('calendar_edit', {'id': element.id}) }}'class="btn 
+                btn-primary"> Edit </a>
                 <a href='{{ path('delete_week', {'id': element.id}) }}'class="btn 
                 btn-primary"> Delete </a>
             </div>

@@ -87,22 +87,20 @@ class ApiSemaineController extends AbstractController
                 $semaine->setCreatedAt(new \DateTime());
 
                 $errors = $validator->validate($semaine);
-                $l->alert("there");
 
                 if(count($errors)>0){
                     return $this->json($errors,400);
                 }
-                $l->alert("here");
 
                 $em->persist($semaine);
                 $em->flush();
 
-                $l->alert("o");
-                return $this->json(
-                    null,
-                    201
+                return $this->json([
+                    'message' => "Semaine bien créée",
+                    'Titre' => $semaine->getTitle(),
+                    'Créé le' => $semaine->getCreatedAt(),
+                    'ID' => $semaine->getId()]
                 );
-
 
             } catch(NotEncodableValueException $e){
                 $l->alert("shit");
@@ -132,23 +130,34 @@ class ApiSemaineController extends AbstractController
 
             $semaine_a_modif = $asr->find($id);
 
+
+            if($semaine->getContent() ==! null){
+                $semaine_a_modif->setContent($semaine->getContent());
+            }
+            if($semaine->getImage() ==! null){
+                $semaine_a_modif->setImage($semaine->getImage());
+            }
+            if($semaine->getTitle() ==! null){
+                $semaine_a_modif->setTitle($semaine->getTitle());
+            }
             $semaine_a_modif->setCreatedAt(new \DateTime());
-            $semaine_a_modif->setContent($semaine->getContent());
-            $semaine_a_modif->setImage($semaine->getImage());
-            $semaine_a_modif->setTitle($semaine->getTitle());
 
 
             $errors = $validator->validate($semaine_a_modif);
-
             if(count($errors)>0){
                 return $this->json($errors,400);
             }
+
 
             $em->persist($semaine_a_modif);
             $em->flush();
 
             return $this->json([
-                'message' => 'Semaine bien modifiée']
+                'message' => 'Semaine bien modifiée',
+                'Content' => $semaine_a_modif->getContent(),
+                'Image' => $semaine_a_modif->getImage(),
+                'Title' => $semaine_a_modif->getTitle(),
+                'Modified at' => $semaine_a_modif->getCreatedAt()]
             );
 
         } catch(NotEncodableValueException $e){
@@ -171,6 +180,12 @@ class ApiSemaineController extends AbstractController
     public function supprimage_semaine($id = null, ArticleSemaineRepository $asr, EntityManagerInterface $manager)
     {
         $week = $asr->find($id);
+        if ($week == null){
+            return $this->json([
+                'status' => 400,
+                'message' => "Pas de semaine a cet ID"], 400
+            );
+        }
         $tasksAssociated = $week->getTaches();
 
         foreach ($tasksAssociated as $tache){
@@ -180,7 +195,7 @@ class ApiSemaineController extends AbstractController
         $manager->flush();
 
         return $this->json([
-            'message' => 'Semaine bien supprimée']
+            'message' => 'Semaine bien supprimee']
         );
     }
 
@@ -216,9 +231,25 @@ class ApiSemaineController extends AbstractController
             }
 
             $errors = $validator->validate($tache);
-            $semaine = $asr->find($id_semaine);
-            $semaine->addTach($tache);
 
+            $semaine = $asr->find($id_semaine);
+
+            if ($semaine == null){
+                return $this->json([
+                    'status' => 400,
+                    'message' => "Pas de semaine a cet ID"], 400
+                );
+            }
+
+            if ($tache->getDueDate() == null){
+                return $this->json([
+                    'status' => 400,
+                    'message' => "Pas de DueDate, mettez en une sous la forme 2021-05-08T00:00:00+00:00"], 400
+                );
+            }
+
+            $semaine->addTach($tache);
+           
             if(count($errors)>0){
                 return $this->json($errors,400);
             }
@@ -227,7 +258,7 @@ class ApiSemaineController extends AbstractController
             $em->flush();
 
             return $this->json([
-                'message' => 'Tache bien créé']
+                'message' => 'Tache bien cree']
             );
 
 
@@ -304,7 +335,11 @@ class ApiSemaineController extends AbstractController
             $em->flush();
 
             return $this->json([
-                'message' => 'Tache bien modifiée']
+                'message' => 'Tache bien modifiee',
+                'Done' => $tache_a_modif->getDone(),
+                'Description' => $tache_a_modif->getDescription(),
+                'DueDate' => $tache_a_modif->getDueDate(),
+                'Id de la Semaine' => $tache_a_modif->getSemaine()->getId()]
             );
 
         } catch(NotEncodableValueException $e){
@@ -327,11 +362,18 @@ class ApiSemaineController extends AbstractController
      */
     public function supprimage_tache($id = null, TacheRepository $tr, EntityManagerInterface $manager)
     {
-        $manager->remove($tr->find($id));
+        $week = ($tr->find($id));
+        if ($week == null){
+            return $this->json([
+                'status' => 400,
+                'message' => "Pas de semaine a cet ID"], 400
+            );
+        }
+        $manager->remove($week);
         $manager->flush();
 
         return $this->json([
-            'message' => 'Tache bien supprimée']
+            'message' => 'Tache bien supprimee']
         );
     }
 

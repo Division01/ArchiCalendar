@@ -26,19 +26,15 @@ class ArticleSemaine
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\Length(min=10, max=255, minMessage="Votre titre doit avoir minimum 10 charactères")
+     * @Assert\Length(min=3, max=255, minMessage="Votre titre doit avoir minimum 3 charactères")
      * @Groups("semaine:read")
      * @Assert\NotBlank(message="Le titre est obligatoire")
-     * @Assert\Length(min=3)
      */
     private $title;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Assert\Length(min=10, minMessage="Votre contenu doit avoir 0 ou au minimum 10 charactères")
      * @Groups("semaine:read")
-     * @Assert\NotBlank(message="Le contenu est obligatoire")
-     * @Assert\Length(min=3)
      */
     private $content;
 

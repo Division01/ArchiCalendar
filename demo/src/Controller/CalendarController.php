@@ -28,10 +28,9 @@ class CalendarController extends AbstractController
      */
     public function index(ArticleSemaineRepository $repo)
     {
+        // On récupère chaque semaines du repo
         $week = $repo->findAll();
-        // $week = $week[-2:-1];
-    
-
+        // On renvoie vers index.html.twig pour rendre la page, avec les semaines sous le nom d'articles
         return $this->render('calendar/index.html.twig', [
             'controller_name' => 'CalendarController',
             'articles' => $week
@@ -41,10 +40,8 @@ class CalendarController extends AbstractController
     /**
      * @Route("/", name="home")
      */
-    public function home(ArticleSemaineRepository $repo){
-        
-        $week = $repo->findAll();
-        
+    public function home(){
+        // On renvoie vers home.html.twig pour rendre la page, avec le titre renommable
         return $this->render('calendar/home.html.twig', [
             'title' => "Bienvenue sur mon calendrier !"
         ]);
@@ -54,45 +51,51 @@ class CalendarController extends AbstractController
      * @Route("/calendar/new", name="calendar_create")
      * @Route("/calendar/{id}/edit", name="calendar_edit")
      */
-     public function form(ArticleSemaine $newSemaine = null, ArticleSemaineRepository $repo, Request $request, EntityManagerInterface $manager){
+     public function form(ArticleSemaine $newSemaine = null, Request $request, EntityManagerInterface $manager){
 
-        $week = $repo->findAll();
-
+        // Comme on utilise le même pour créer et edit, il faut vérifier si elle existe et la créer sinon
         if(!$newSemaine){
             $newSemaine = new ArticleSemaine();
         }
 
-        // Utilise le formulaire qui se situe dans le fichier SemaineType.php
+        // On utilise le formulaire qui se situe dans le fichier SemaineType.php
         $form = $this->createForm(SemaineType::class, $newSemaine);
 
         $form->handleRequest($request);
 
+        // On vérifie que le formulaire est bien respecté et que la forme
+        // est bonne pour conclure l'opération et renvoyer à la page de la semaine
         if($form->isSubmitted() && $form->isValid()){
             if(!$newSemaine->getId()){
                 $newSemaine->setCreatedAt(new \DateTime());
             }
             
+            // Tout est bon, on valide et on envoie
             $manager->persist($newSemaine);
             $manager->flush();
 
+            // On redirect vers la page de la nouvelle semaine
             return $this->redirectToRoute('calendar_show',[
                 'id' => $newSemaine->getId()]);
         }
 
+        // On envoie au html pour que l'utilisateur puisse remplir le formulaire
+        // Donc oui, paradoxalement se passe avant le if au-dessus
         return $this->render('calendar/create.html.twig',[
             'formSemaine' => $form->createView(),
             'editMode' => $newSemaine->getId() !== null
         ]);
     }
 
+
+
     /**
      * @Route("/calendar/task/new", name="task_create")
      * @Route("/calendar/task/{id}/edit", name="task_edit")
      */
-    public function formTask($id = null, TacheRepository $repo, ArticleSemaineRepository $reposit ,Request $request, EntityManagerInterface $manager){
+    public function formTask($id = null, TacheRepository $repo, Request $request, EntityManagerInterface $manager){
 
-        $week = $reposit->findAll();
-
+        // Soit une nouvelle tâche a créé, soit on la trouve à partir de son ID
         if(!$id){
             $newTask = new Tache();
         }
@@ -105,13 +108,17 @@ class CalendarController extends AbstractController
 
         $form->handleRequest($request);
 
+        // Une fois le formulaire renvoyé, on vérifie que le formulaire est bien respecté 
+        // et que la forme est bonne et on renvoie a la vue de la semaine de la tâche modifiée/créée
         if($form->isSubmitted() && $form->isValid()){            
             $manager->persist($newTask);
             $manager->flush();
-
-            return $this->redirectToRoute('calendar');
+            return $this->redirectToRoute('calendar_show',[
+                'id' => $newTask->getSemaine()->getId()]);
         }
 
+        // On envoie au html pour que l'utilisateur puisse remplir le formulaire
+        // Donc oui, paradoxalement se passe avant le if au-dessus
         return $this->render('calendar/addTask.html.twig',[
             'formTache' => $form->createView(),
             'editMode' => $newTask->getId() !== null
@@ -122,15 +129,13 @@ class CalendarController extends AbstractController
     /**
      * @Route("/calendar/{id}", name="calendar_show")
      */
-    public function show(ArticleSemaine $article, ArticleSemaineRepository $repo){
-
-        $week = $repo->findAll();
-
-
+    public function show(ArticleSemaine $semaine, ArticleSemaineRepository $asr){
+        //$semaine = $asr->find($id)
+        //C'est ce que j'aurais dû mettre mais symfony est assez intelligent
+        //Que pour lier tout seul l'ID a la semaine
         return $this->render('calendar/show.html.twig', [
-            'element' => $article
+            'element' => $semaine
         ]);
-        
     }
 
 
@@ -160,13 +165,15 @@ class CalendarController extends AbstractController
      */
     public function DeleteWeek($id, ArticleSemaineRepository $repo, EntityManagerInterface $manager)
     {
+        // On trouve la semaine associée a l'id
         $week = $repo->find($id);
+        // On trouve les taches associées a la semaine
         $tasksAssociated = $week->getTaches();
-
+        // On supprime chaque tache une a une
         foreach ($tasksAssociated as $tache){
             $manager->remove($tache);
         }
-
+        // On supprime la semaine
         $manager->remove($week);
         $manager->flush();
         
