@@ -135,13 +135,16 @@ class CalendarController extends AbstractController
 
 
     /**
-     * @Route("/delete/{id}", name="delete_task")
+     * @Route("/delete_task/{id}", name="delete_task")
      */
     public function DeleteTask($id, TacheRepository $repo, EntityManagerInterface $manager)
     {
-        $taskList = $repo->find($id);
-        $listID = $taskList->getSemaine();
-        $manager->remove($taskList);
+        // On trouve la tache a partir de son ID 
+        $task = $repo->find($id);
+        // On prends l'ID de la semaine à laquelle est associée la tache
+        $listID = $task->getSemaine();
+        // On supprime la tache de la bdd
+        $manager->remove($task);
         $manager->flush();
         
         $this->addFlash("notice", sprintf("Task has been deleted"));
@@ -151,4 +154,24 @@ class CalendarController extends AbstractController
         ]);
     }
 
+
+    /**
+     * @Route("/delete_week/{id}", name="delete_week")
+     */
+    public function DeleteWeek($id, ArticleSemaineRepository $repo, EntityManagerInterface $manager)
+    {
+        $week = $repo->find($id);
+        $tasksAssociated = $week->getTaches();
+
+        foreach ($tasksAssociated as $tache){
+            $manager->remove($tache);
+        }
+
+        $manager->remove($week);
+        $manager->flush();
+        
+        $this->addFlash("notice", sprintf("Week and associated tasks have been deleted"));
+
+        return $this->redirectToRoute('calendar');
+    }
 }

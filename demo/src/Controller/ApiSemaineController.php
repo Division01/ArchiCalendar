@@ -170,6 +170,12 @@ class ApiSemaineController extends AbstractController
      */
     public function supprimage_semaine($id = null, ArticleSemaineRepository $asr, EntityManagerInterface $manager)
     {
+        $week = $asr->find($id);
+        $tasksAssociated = $week->getTaches();
+
+        foreach ($tasksAssociated as $tache){
+            $manager->remove($tache);
+        }
         $manager->remove($asr->find($id));
         $manager->flush();
 

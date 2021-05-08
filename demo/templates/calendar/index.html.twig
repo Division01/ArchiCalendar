@@ -12,12 +12,15 @@
             <h2>{{ element.title }}</h2>
             <div class="metadata">Créé le {{ element.createdAt | 
             date('d/m/Y') }} à  {{ element.createdAt | date('H:i') }}</div>
+
             <div class="content">
-                {{ element.content | raw }}
+                {{ element.content | raw }} <br/>
                 <a href="{{ path('calendar_show',{'id':element.id}) }}" class="btn 
-                btn-primary">Lire la suite</a>
+                btn-primary"> Lire la suite </a> 
+                <a href='{{ path('delete_week', {'id': element.id}) }}'class="btn 
+                btn-primary"> Delete </a>
             </div>
-            <p> </p>
+            <p></p>
 
         </article>
 
