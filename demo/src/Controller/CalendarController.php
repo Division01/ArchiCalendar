@@ -70,7 +70,7 @@ class CalendarController extends AbstractController
                 $newSemaine->setCreatedAt(new \DateTime());
             }
             
-            // Tout est bon, on valide et on envoie
+            // Tout est bon, on valide et on envoie a l'object manager
             $manager->persist($newSemaine);
             $manager->flush();
 
@@ -148,7 +148,7 @@ class CalendarController extends AbstractController
         $task = $repo->find($id);
         // On prends l'ID de la semaine à laquelle est associée la tache
         $listID = $task->getSemaine();
-        // On supprime la tache de la bdd
+        // On supprime la tache via l'object manager
         $manager->remove($task);
         $manager->flush();
         
@@ -173,7 +173,7 @@ class CalendarController extends AbstractController
         foreach ($tasksAssociated as $tache){
             $manager->remove($tache);
         }
-        // On supprime la semaine
+        // On supprime la semaine via l'object manager
         $manager->remove($week);
         $manager->flush();
         
