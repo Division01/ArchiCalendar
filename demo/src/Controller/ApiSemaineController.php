@@ -26,11 +26,17 @@ class ApiSemaineController extends AbstractController
 //////////
 
     /**
-     * @Route("/api/semaines", name="api_semaine_index", methods={"GET"})
+     * @Route("/api/semaines", name="api_semaine_index", methods={"OPTIONS","GET"})
      */
-    public function index(ArticleSemaineRepository $articleSemaineRepository)
+    public function index(Request $request, ArticleSemaineRepository $articleSemaineRepository)
     {
         $temp = $articleSemaineRepository->findAll();
+        
+        if ($request->isMethod('OPTIONS')) {
+            return $this->json($temp, 200, ["Access-Control-Allow-Origin" => "*", "Access-Control-Allow-Headers" => "*", "Access-Control-Allow-Methods" => "*"]);
+        }
+
+        
         return $this->json(
             $temp,
             200,
@@ -61,7 +67,7 @@ class ApiSemaineController extends AbstractController
             [
                 'Content-Type'=> 'application/json',
                 'Access-Control-Allow-Origin'=> 'http://localhost:4200',
-                "Access-Control-Allow-Methods"=>"GET, PUT, POST, DELETE, OPTIONS",
+                "Access-Control-Allow-Methods"=>"GET, OPTIONS",
                 'Access-Control-Allow-Headers'=> 'Content-Type, Accept, Authorization, X-Requested-With'
             ], 
             ['groups'=>'semaine:read'] 
